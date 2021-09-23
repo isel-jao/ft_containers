@@ -3,7 +3,7 @@ NAME = container
 SRCS	= main.cpp
 HEADERS	= vector.hpp
 
-CC			= clang++ -Wall -Werror -Wextra -std=c++98
+CC			= clang++ -Wall -Werror -Wextra 
 
 CPP_FLAGS	= -Wall -Werror -Wextra -std=c++98
 LD			= $(CC)
@@ -31,9 +31,9 @@ fclean: clean
 re: fclean all
 
 test: all
-	@clear && ./std${NAME} 
+	@clear && echo ------------  std ------------ && ./stdcontainer
 .PHONY: all clean fclean re
 
 ft:  all
-	@clear && ./ft${NAME} 
+	@clear && echo ------------  ft ------------ && ./ft${NAME} 
 	
