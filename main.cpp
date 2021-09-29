@@ -390,6 +390,7 @@ namespace ft
 			lenght -= count;
 			return (first);
 		}
+		size_t max_size() const{return 0};
 		bool empty() const { return lenght == 0; }
 		size_t size() const { return lenght; }
 		size_t capacity() const { return allocated; }
@@ -423,13 +424,6 @@ void print_vector(vector<T> &v)
 int main()
 {
 	NAMESPACE::vector<int> v1(5);
-	int arr[10];
-	for (int i = 0; i < 10; i++)
-		arr[i] = i * 11;
-	for (size_t i = 1; i < 5; i++)
-		v1[i] = (i + 1) * 10;
-	// v1.push_back(666);
-	v1.insert(v1.begin() + 2, arr + 1, arr + 7);
-	print_vector(v1);
+	std::cout << v1.max_size() << std::endl;
 	return 0;
 }
