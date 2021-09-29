@@ -457,9 +457,18 @@ namespace ft
 			length -= count;
 			return (first);
 		}
-		void reserve (size_type n)
+		void reserve(size_t n)
 		{
-			(void)n;
+			if (allocated >= n)
+				return;
+			T *new_arr = myAllocator.allocate(n);
+			for (size_t i = 0; i < length; i++)
+				myAllocator.construct(new_arr + i, arr[i]);
+			for (size_t i = 0; i < length; i++)
+				myAllocator.destroy(arr + i);
+			myAllocator.deallocate(arr, allocated);
+			arr = new_arr;
+			allocated = n;
 		}
 		size_t max_size() const { return 0; };
 		bool empty() const { return length == 0; }
@@ -485,7 +494,10 @@ void print_vector(vector<T> &v)
 {
 	std::cout << "s: " << v.size() << ", c: " << v.capacity() << "| ";
 	if (v.size() <= 0)
+	{
+		std::cout << std::endl;
 		return;
+	}
 	std::cout << v[0];
 	for (size_t i = 1; i < v.size(); i++)
 		std::cout << ", " << v[i];
@@ -496,8 +508,10 @@ int main()
 {
 	NAMESPACE::vector<int> v1;
 
-	for (int i = 0; i < 10; i++)
-		v1.push_back(i * 10);
+	// for (int i = 0; i < 10; i++)
+	// 	v1.push_back(i * 10);
+	print_vector(v1);
+	v1.reserve(17);
 	print_vector(v1);
 	return 0;
 }
