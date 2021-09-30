@@ -470,6 +470,25 @@ namespace ft
 			arr = new_arr;
 			allocated = n;
 		}
+		void resize(size_t n, T val = T())
+		{
+			size_t i;
+			if (n > allocated)
+			{
+				allocated = n;
+				T *new_arr = myAllocator.allocate(n);
+				for (size_t i = 0; i < length; i++)
+					myAllocator.construct(new_arr + i, arr[i]);
+				arr = new_arr;
+			}
+			for (i = length; i  < n; i++)
+					myAllocator.construct(arr + i, val);
+			length = n;
+		}
+		void swap (vector& x)
+		{
+			
+		}
 		size_t max_size() const { return 0; };
 		bool empty() const { return length == 0; }
 		size_t size() const { return length; }
@@ -508,10 +527,10 @@ int main()
 {
 	NAMESPACE::vector<int> v1;
 
-	// for (int i = 0; i < 10; i++)
-	// 	v1.push_back(i * 10);
+	for (int i = 0; i < 5; i++)
+		v1.push_back(i * 10);
+	v1.reserve(10);
 	print_vector(v1);
-	v1.reserve(17);
 	print_vector(v1);
 	return 0;
 }

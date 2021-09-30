@@ -1,7 +1,7 @@
 NAME = container
 
-SRCS	= main.cpp
-HEADERS	= vector.hpp
+SRCS	= map.cpp
+HEADERS	= 
 
 CC			= clang++ -Wall -Werror -Wextra  -std=c++98
 
