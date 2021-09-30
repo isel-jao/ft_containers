@@ -221,7 +221,7 @@ int main()
 	m.insert(std::pair<std::string, int>("isel", 28));
 	m.insert(std::pair<std::string, int>("isel", 29));
 	m.insert(std::pair<std::string, int>("karim", 25));
-	NAMESPACE::map<std::string, int>::iterator it = m.find("karim");
+	std::map<std::string, int>::iterator it = m.find("karim");
 	if (it != m.end())
 		std::cout << "s: " << m.size() << ", " << it->first << ", " << it->second << std::endl;
 	return 0;
