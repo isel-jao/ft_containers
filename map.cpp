@@ -1,7 +1,6 @@
 #include <fstream>
 #include <math.h>
 #include <algorithm>
-#include <vector>
 #include <iostream>
 #include <string.h>
 #include <map>
@@ -60,6 +59,8 @@ std::ostream &operator<<(std::ostream &out, vec &v)
 // }
 #define value_type pair<T1, T2>
 #define key_type T1
+
+typedef size_t size_type;
 
 namespace ft
 {
@@ -144,18 +145,16 @@ namespace ft
 			value_type *m_ptr;
 		};
 
-		iterator begin() { return iterator(pairs); }
-		iterator end() { return iterator(pairs + _size); }
+		iterator begin() const { return iterator(pairs); }
+		iterator end() const { return iterator(pairs + _size); }
 		size_t size() const { return this->_size; }
 		bool empty() const { return this->_size == 0; }
 
-		iterator find(const key_type &k)
+		iterator find(const key_type &k) const
 		{
 			iterator it = map::begin();
 			while (it != map::end() && it->first != k)
-			{
 				it++;
-			}
 			return it;
 		}
 		pair<iterator, bool> insert(const value_type &val)
@@ -188,6 +187,64 @@ namespace ft
 			_size++;
 			return (p);
 		}
+		iterator insert (iterator position, const value_type& val)
+		{
+			value_type value_at_position;
+			size_type i;
+			size_type new_position;
+			if (position == map::end())
+			{
+				map::insert(val);
+				return (map::begin());
+			}
+			if (_size >= _capacity)
+			{
+				value_at_position = *position;
+				value_type *new_pairs = myAllocator.allocate(_capacity * 2);
+				for (i = 0; pairs[i] != value_at_position; i++)
+					myAllocator.construct(new_pairs + i, pairs[i]);
+				for (i = 0; pairs[i] != value_at_position; i++)
+					myAllocator.destroy(pairs + i);
+				myAllocator.construct(new_pairs + i, val);
+				new_position = i;
+				for (; i < _size; i++)
+				{
+					myAllocator.construct(new_pairs + i + 1, pairs[i]);
+				}
+				for (i = new_position; i < _size; i++)
+					myAllocator.destroy(pairs + i);
+				myAllocator.deallocate(pairs, _capacity);
+				pairs = new_pairs;
+				_capacity *= 2;
+				_size += 1;
+			}
+			else
+			{
+				myAllocator.construct(pairs + _size, pairs[_size - 1]);
+				for (i = _size - 1; pairs[i] != *position; i--)
+				{
+					myAllocator.destroy(pairs + i);
+					myAllocator.construct(pairs + i, pairs[i - 1]);
+				}
+				new_position = i;
+				myAllocator.destroy(pairs + i);
+				myAllocator.construct(pairs + i, val);
+			}
+			return (map::begin() + new_position);
+		}
+		void clear()
+		{
+			for (size_type i = 0; i < _size; i++)
+				myAllocator.destroy(pairs + i);
+			_size = 0;
+		}
+		size_type count(const key_type &k) const
+		{
+			if (map::find(k) != map::end())
+				return 1;
+			return 0;
+		}
+		std::allocator<value_type> get_allocator() const { return map::myAllocator; }
 	};
 }
 
@@ -221,8 +278,9 @@ int main()
 	m.insert(std::pair<std::string, int>("isel", 28));
 	m.insert(std::pair<std::string, int>("isel", 29));
 	m.insert(std::pair<std::string, int>("karim", 25));
-	std::map<std::string, int>::iterator it = m.find("karim");
+	NAMESPACE::map<std::string, int>::iterator it = m.find("karim");
 	if (it != m.end())
 		std::cout << "s: " << m.size() << ", " << it->first << ", " << it->second << std::endl;
+	std::cout << m.count("mona") << std::endl;
 	return 0;
 }
