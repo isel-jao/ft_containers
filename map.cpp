@@ -90,19 +90,34 @@ Node *bst_insert(Node *node, K const &key, bool &inserted)
 	return node;
 }
 
-template <typename Node>
-Node *bst_erease(Node *root, int key)
+template <typename Node, typename K>
+Node *bst_erease(Node *root, K key, bool &deleted)
 {
 	if (root == NULL)
+	{
+		deleted = false;
 		return NULL;
+	}
 	if (root->cmp(key, root->key.first))
 	{
-		root->left = bst_erease(root->left, key);
+		Node *new_child = bst_erease(root->left, key, deleted);
+		if(new_child)
+		{
+			waza();
+			new_child->parent = root->left;
+		}
+		root->left = new_child;
 		return root;
 	}
 	else if (root->cmp(root->key.first, key))
 	{
-		root->right = bst_erease(root->right, key);
+		Node *new_child = bst_erease(root->right, key, deleted);
+		if(new_child)
+		{
+			new_child->parent = root->right;
+			waza();
+		}
+		root->right = new_child;
 		return root;
 	}
 	if (root->left == NULL)
@@ -113,9 +128,9 @@ Node *bst_erease(Node *root, int key)
 	}
 	else if (root->right == NULL)
 	{
-		Node *temp = root->left;
+		Node *left = root->left;
 		delete root;
-		return temp;
+		return left;
 	}
 	else
 	{
@@ -343,7 +358,29 @@ namespace ft
 		
 		void erase (iterator position)
 		{
-			bst_erease(root, position->first);
+			bool deleted = true;
+			root = bst_erease(root, position->first, deleted);
+			_size -= deleted;
+		}
+
+		size_type erase (const key_type& k)
+		{
+			bool deleted = true;
+			root = bst_erease(root, k, deleted);
+			_size -= deleted;
+			return deleted;
+		}
+
+		void erase (iterator first, iterator last)
+		{
+			bool deleted;
+			(void)last;
+			// for(; first != last; first++)
+			// {
+				deleted = true;
+				root = bst_erease(root, first->first, deleted);
+				_size -= deleted;
+			// }
 		}
 
 		std::pair<iterator, bool> insert(const value_type &val)
@@ -367,20 +404,28 @@ int main()
 
 	NAMESPACE::map<std::string, int> m;
 
-	std::cout << "map is emty " << m.empty() << std::endl;
-	m.insert(std::pair<std::string, int>("issma", 28));
+	m.insert(std::pair<std::string, int>("issam0", 28));
+	m.insert(std::pair<std::string, int>("issam1", 28));
+	m.insert(std::pair<std::string, int>("issam2", 28));
+	m.insert(std::pair<std::string, int>("issam3", 28));
 	m.insert(std::pair<std::string, int>("yahya", 24));
 	m.insert(std::pair<std::string, int>("md", 23));
-	m.insert(std::pair<std::string, int>("ichoukri", 20));
-	m.insert(std::pair<std::string, int>("ichoukri", 40));
+	m.insert(std::pair<std::string, int>("ichoukri1", 20));
+	m.insert(std::pair<std::string, int>("ichoukri2", 40));
 
-
+	// NAMESPACE::map<std::string, int >::iterator b = m.begin();
+	NAMESPACE::map<std::string, int >::iterator it;
 	// NAMESPACE::map<std::string, int >::iterator e = m.end();
-	// while (it != e)
-	// {
-	// 	std::cout << it->first << ", " << it->second << std::endl;
-	// 	it++;
-	// }
+
+	int count = 0;
+	m.erase("issam1");
+	for(it = m.begin() ; it != m.end() && count++ < 30; it++ )
+	{
+		std::cout << it->first << ", " << it->second << std::endl;
+	}
+
+
+
 	// std::cout << (*it == *b) << std::endl;
 
 	// std::cout << "----------------------------" << std::endl;
@@ -412,3 +457,4 @@ int main()
 // cmp in bst needs to be static
 // map::end() return false value
 // *it = v (op overload missing)
+// bst_insert is broken
