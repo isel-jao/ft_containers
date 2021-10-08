@@ -369,12 +369,6 @@ int main()
 	m.insert(std::pair<std::string, int>("ichoukri", 20));
 	m.insert(std::pair<std::string, int>("ichoukri", 40));
 
-	std::cout << "map is emty " << m.empty() << std::endl;
-	std::cout << m.count("yahya") << std::endl;
-	std::cout << m.count("yahyda") << std::endl;
-	std::cout << m.size() << std::endl;
-	m.clear();
-	std::cout << m.size() << std::endl;
 
 	// NAMESPACE::map<std::string, int >::iterator e = m.end();
 	// while (it != e)
