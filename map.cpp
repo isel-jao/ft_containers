@@ -340,6 +340,11 @@ namespace ft
 				right = right->right;
 			return iterator(right + 4);
 		}
+		
+		void erase (iterator position)
+		{
+			bst_erease(root, position->first);
+		}
 
 		std::pair<iterator, bool> insert(const value_type &val)
 		{
