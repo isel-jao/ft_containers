@@ -40,7 +40,7 @@ std::ostream &operator<<(std::ostream &out, vec &v)
 
 template <
 	typename K,
-	class Compare = std::less<K> >
+	class Compare>
 struct bst
 {
 	K key;
@@ -93,62 +93,70 @@ Node *bst_insert(Node *node, K const &key, bool &inserted)
 template <typename Node, typename K>
 Node *bst_erease(Node *root, K key, bool &deleted)
 {
-	if (root == NULL)
+	Node *to_delete = bst_search(root, key);
+	if (!to_delete)
 	{
 		deleted = false;
-		return NULL;
-	}
-	if (root->cmp(key, root->key.first))
-	{
-		Node *new_child = bst_erease(root->left, key, deleted);
-		if(new_child)
-		{
-			waza();
-			new_child->parent = root->left;
-		}
-		root->left = new_child;
 		return root;
 	}
-	else if (root->cmp(root->key.first, key))
+	Node *parent = to_delete->parent;
+	// if to delete has no right replace with its left
+	if (!to_delete->right)
 	{
-		Node *new_child = bst_erease(root->right, key, deleted);
-		if(new_child)
+		if (parent)
 		{
-			new_child->parent = root->right;
-			waza();
+			if (to_delete == parent->right)
+				parent->right = to_delete->left;
+			else if (parent && to_delete == parent->left)
+				parent->left = to_delete->left;
 		}
-		root->right = new_child;
-		return root;
+		else
+			root = to_delete->left;
+		if(to_delete->left)
+			to_delete->left->parent = parent;
+		delete to_delete;
 	}
-	if (root->left == NULL)
+	// if to_delete has no left replace with its right
+	else if (!to_delete->left)
 	{
-		Node *rihgt = root->right;
-		delete root;
-		return rihgt;
+		if (parent)
+		{
+			if (to_delete == parent->left)
+				parent->left = to_delete->right;
+			else if (parent && to_delete == parent->right)
+				parent->right = to_delete->right;
+		}
+		else
+			root = to_delete->right;
+		if (to_delete->right)
+			to_delete->right->parent = parent;
+		delete to_delete;
 	}
-	else if (root->right == NULL)
-	{
-		Node *left = root->left;
-		delete root;
-		return left;
-	}
+	// if to_delte has both righ and left find next successor and replace it value with it and delete the successor instead
 	else
 	{
-		Node *succParent = root;
-		Node *succ = root->right;
+		Node *succ = to_delete->right;
 		while (succ->left != NULL)
 		{
-			succParent = succ;
+			parent = succ;
 			succ = succ->left;
 		}
-		if (succParent != root)
-			succParent->left = succ->right;
+		if (parent != to_delete)
+		{
+			if (succ->right)
+				succ->right->parent = parent;
+			parent->left = succ->right;
+		}
 		else
-			succParent->right = succ->right;
+		{
+			if (succ->right)
+				succ->right->parent = parent;
+			parent->right = succ->right;
+		}
 		root->key = succ->key;
 		delete succ;
-		return root;
 	}
+	return root;
 }
 
 template <typename Node, typename K>
@@ -358,15 +366,15 @@ namespace ft
 				right = right->right;
 			return iterator(right + 4);
 		}
-		
-		void erase (iterator position)
+
+		void erase(iterator position)
 		{
 			bool deleted = true;
 			root = bst_erease(root, position->first, deleted);
 			_size -= deleted;
 		}
 
-		size_type erase (const key_type& k)
+		size_type erase(const key_type &k)
 		{
 			bool deleted = true;
 			root = bst_erease(root, k, deleted);
@@ -374,16 +382,18 @@ namespace ft
 			return deleted;
 		}
 
-		void erase (iterator first, iterator last)
+		void erase(iterator first, iterator last)
 		{
 			bool deleted;
 			(void)last;
-			// for(; first != last; first++)
-			// {
+			iterator tmp;
+			for(; first != last;)
+			{
+				tmp = ++first;
 				deleted = true;
-				root = bst_erease(root, first->first, deleted);
+				root = bst_erease(root, tmp->first, deleted);
 				_size -= deleted;
-			// }
+			}
 		}
 
 		std::pair<iterator, bool> insert(const value_type &val)
@@ -416,34 +426,39 @@ int main()
 	m.insert(std::pair<std::string, int>("ichoukri1", 20));
 	m.insert(std::pair<std::string, int>("ichoukri2", 40));
 
-	// NAMESPACE::map<std::string, int >::iterator b = m.begin();
-	NAMESPACE::map<std::string, int >::iterator it;
+	NAMESPACE::map<std::string, int >::iterator b = m.begin();
+	NAMESPACE::map<std::string, int >::iterator it, it1, it2;
 	// NAMESPACE::map<std::string, int >::iterator e = m.end();
 
+
+	it1 = ++b;
+	it2 = ++it1;
+	++it2;
+	++it2;
+	m.erase(it1, it2);
 	int count = 0;
-	m.erase("issam1");
 	for(it = m.begin() ; it != m.end() && count++ < 30; it++ )
 	{
 		std::cout << it->first << ", " << it->second << std::endl;
 	}
 
 
-
-	// std::cout << (*it == *b) << std::endl;
-
 	// std::cout << "----------------------------" << std::endl;
-	// std::cout << m[3] << std::endl;
+	// bst<std::pair<std::string, int>, std::less<std::string> > *root = NULL;
+	// bool b;
 
-	// std::cout << "----------------------------" << std::endl;
-	// bst<std::pair<int, int> , std::greater<int> > *root = NULL;
+	// root = bst_insert(root, std::pair<std::string, int>("issam0", 28), b);
+	// root = bst_insert(root, std::pair<std::string, int>("issam1", 28), b);
+	// root = bst_insert(root, std::pair<std::string, int>("issam2", 28), b);
+	// root = bst_insert(root, std::pair<std::string, int>("issam3", 28), b);
+	// root = bst_insert(root, std::pair<std::string, int>("yahya", 24), b);
+	// root = bst_insert(root, std::pair<std::string, int>("md", 23), b);
+	// root = bst_insert(root, std::pair<std::string, int>("ichoukri1", 20), b);
+	// root = bst_insert(root, std::pair<std::string, int>("ichoukri2", 40), b);
 
-	// root = bst_insert(root, std::pair<int, int>(4, 5));
-	// root = bst_insert(root, std::pair<int, int>(2, 4));
-	// root = bst_insert(root, std::pair<int, int>(3, 55));iterator operator++(int)
-	// root = bst_insert(root, std::pair<int, int>(44, 7));
-	// root = bst_insert(root, std::pair<int, int>(564, 13));
-	// root = bst_insert(root, std::pair<int, int>(3434, 89));
-
+	// root = bst_erease(root, "issam2", b);
+	// root = bst_erease(root, "md", b);
+	// inorder(root);
 	// bst<std::pair<int, int> , std::greater<int> > *tmp = bst_search(root, 2);
 
 	// std::cout << tmp->key.first << ". " << tmp->key.second << std::endl;
@@ -460,4 +475,4 @@ int main()
 // cmp in bst needs to be static
 // map::end() return false value
 // *it = v (op overload missing)
-// bst_insert is broken
+// bst_erase is broken
