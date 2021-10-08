@@ -6,6 +6,8 @@
 #include <map>
 #include <deque>
 
+#define waza() std::cout << "WAZAAAAAAAA,\t\tline: " << __LINE__ << ",\tfunc: " << __FUNCTION__ << std::endl
+
 struct vec
 {
 	int x, y, z;
@@ -36,53 +38,169 @@ std::ostream &operator<<(std::ostream &out, vec &v)
 	return out;
 }
 
-// namespace ft
-// {
-// 	template <typename T1, typename T2>
-// 	struct pair
-// 	{
-// 		T1 first;
-// 		T2 second;
+template <
+	typename K,
+	class Compare = std::less<K> >
+struct bst
+{
+	K key;
+	bst *left;
+	bst *right;
+	bst *parent;
+	Compare cmp;
+	bst(K const &k = K());
+	bst(const bst<K, Compare> &obj);
+	~bst();
+};
 
-// 		pair(T1 f = T1(), T2 s = T2()) : first(f), second(s) {}
-// 		pair(pair &val) : first(val.first), second(val.second) {}
-// 		pair &operator=(pair &val)
-// 		{
-// 			std::cout << "wazaaaaaaaaaaaaa" << std::endl;
-// 			first = val.first;
-// 			second = val.second;
-// 			return *this;
-// 		}
-// 		~pair() {}
-// 	};
+template <typename K, class Compare>
+bst<K, Compare>::bst(K const &k)
+	: key(k), left(NULL), right(NULL), parent(NULL) {}
 
-// }
-#define value_type pair<T1, T2>
-#define key_type T1
+template <typename K, class Compare>
+bst<K, Compare>::bst(const bst<K, Compare> &obj)
+	: key(obj.key), left(obj.left), right(obj.right), parent(obj.parent) {}
 
-typedef size_t size_type;
+template <typename K, class Compare>
+bst<K, Compare>::~bst() {}
 
+template <typename Node, typename K>
+Node *bst_insert(Node *node, K const &key, bool &inserted)
+{
+	if (node == NULL)
+		return new Node(key);
+
+	Node *child;
+	if (node->cmp(key.first, node->key.first))
+	{
+		child = bst_insert(node->left, key, inserted);
+		if (!node->left)
+			child->parent = node;
+		node->left = child;
+	}
+	else if (node->cmp(node->key.first, key.first))
+	{
+		child = bst_insert(node->right, key, inserted);
+		if (!node->right)
+			child->parent = node;
+		node->right = child;
+	}
+	else
+		inserted = false;
+	return node;
+}
+
+template <typename Node>
+Node *bst_erease(Node *root, int key)
+{
+	if (root == NULL)
+		return NULL;
+	if (root->cmp(key, root->key.first))
+	{
+		root->left = bst_erease(root->left, key);
+		return root;
+	}
+	else if (root->cmp(root->key.first, key))
+	{
+		root->right = bst_erease(root->right, key);
+		return root;
+	}
+	if (root->left == NULL)
+	{
+		Node *rihgt = root->right;
+		delete root;
+		return rihgt;
+	}
+	else if (root->right == NULL)
+	{
+		Node *temp = root->left;
+		delete root;
+		return temp;
+	}
+	else
+	{
+		Node *succParent = root;
+		Node *succ = root->right;
+		while (succ->left != NULL)
+		{
+			succParent = succ;
+			succ = succ->left;
+		}
+		if (succParent != root)
+			succParent->left = succ->right;
+		else
+			succParent->right = succ->right;
+		root->key = succ->key;
+		delete succ;
+		return root;
+	}
+}
+
+template <typename Node, typename K>
+Node *bst_search(Node *root, K const &key)
+{
+	if (!root || root->key.first == key)
+		return root;
+	if (root->cmp(key, root->key.first))
+		return (bst_search(root->left, key));
+	else
+		return (bst_search(root->right, key));
+}
+
+template <typename Node>
+void bst_destroy(Node *root)
+{
+	if (!root)
+		return;
+	bst_destroy(root->left);
+	Node *right = root->right;
+	delete root;
+	bst_destroy(right);
+}
+template <typename Node>
+void inorder(Node *root)
+{
+	if (!root)
+		return;
+	inorder(root->left);
+	std::cout << root->key.first << ", " << root->key.second << std::endl;
+	inorder(root->right);
+}
+
+#define key_type Key
+#define mapped_type T
+#define value_type std::pair<Key, T>
+#define size_type std::size_t
+#define difference_type std::ptrdiff_t
+#define key_compare Compare
+#define allocator_type Allocator
+#define reference value_type &
+#define const_reference const value_type &
+#define bst_node bst<value_type, Compare>
 namespace ft
 {
-	using std::pair;
-	template <typename T1, typename T2>
+	template <
+		class Key,
+		class T,
+		class Compare = std::less<Key>,
+		class Allocator = std::allocator<std::pair<const Key, T> > >
 	class map
 	{
 	private:
-		std::allocator<value_type> myAllocator;
-		value_type *pairs;
-		size_t _size;
-		size_t _capacity;
+		key_type _key;
+		mapped_type _mapped;
+		value_type _value;
+		bst_node *root;
+		size_type _size;
 
 	public:
-		map() : pairs(NULL), _size(0), _capacity(0) {}
-		~map() {}
-
+		map()
+			: _key(key_type()), _mapped(mapped_type()), _value(value_type()), root(NULL), _size(0) {}
 		class iterator
 		{
 		public:
-			iterator(value_type *ptr = NULL) : m_ptr(ptr) {}
-			iterator(iterator const &other) : m_ptr(other.m_ptr) {}
+			iterator(bst_node *ptr = NULL) : m_ptr(ptr), end(0) {}
+			iterator(iterator const &other) : m_ptr(other.m_ptr), end(other.end) {}
 			~iterator() {}
 			iterator &operator=(iterator const &other)
 			{
@@ -92,35 +210,43 @@ namespace ft
 				return (*this);
 			}
 
-			value_type *get_addr() { return m_ptr; };
-			value_type &operator*() const { return *m_ptr; }
-			value_type *operator->() { return m_ptr; }
-			value_type &operator[](size_t index) { return *(m_ptr + index); }
-
-			iterator &operator+=(size_t index)
-			{
-				m_ptr += index;
-				return (*this);
-			}
-			iterator &operator-=(size_t index)
-			{
-				m_ptr -= index;
-				return (*this);
-			}
-
-			iterator operator+(size_t index) { return iterator(m_ptr + index); }
-			iterator operator-(size_t index) { return iterator(m_ptr - index); }
-
-			bool operator==(const iterator &other) { return m_ptr == other.m_ptr; };
-			bool operator!=(const iterator &other) { return m_ptr != other.m_ptr; };
-			bool operator<(const iterator &other) { return m_ptr < other.m_ptr; };
-			bool operator>(const iterator &other) { return m_ptr > other.m_ptr; };
-			bool operator<=(const iterator &other) { return m_ptr <= other.m_ptr; };
-			bool operator>=(const iterator &other) { return m_ptr >= other.m_ptr; };
-
+			bool operator==(const iterator &other) { return m_ptr + end == other.m_ptr; };
+			bool operator!=(const iterator &other) { return m_ptr + end != other.m_ptr; };
+			value_type &operator*() const { return (m_ptr + end)->key; }
+			value_type *operator->() { return &((m_ptr + end)->key); }
 			iterator &operator++()
 			{
-				m_ptr++;
+				bst_node *node = m_ptr;
+				if (end < 0)
+				{
+					end = 0;
+					return *this;
+				}
+				if (end > 0)
+					return *this;
+				if (node->right)
+				{
+					node = node->right;
+					while (node->left)
+						node = node->left;
+				}
+				else if (node->parent)
+				{
+					// check if node is the left sibling
+					if (node->parent->left == node)
+						node = node->parent;
+					// get the right parent
+					else
+					{
+						while (node->parent && node->parent->right == node)
+							node = node->parent;
+						node = node->parent;
+					}
+				}
+				if (node)
+					m_ptr = node;
+				else
+					end = 4;
 				return *this;
 			}
 			iterator operator++(int)
@@ -131,8 +257,40 @@ namespace ft
 			}
 			iterator &operator--()
 			{
-				m_ptr--;
+				if (end > 0)
+				{
+					end = 0;
+					return *this;
+				}
+				if (end < 0)
+					return *this;
+				bst_node *node = m_ptr;
+				if (node->left)
+				{
+					node = node->left;
+					while (node->right)
+						node = node->right;
+				}
+				else if (node->parent)
+				{
+
+					// check if node is the right sibling
+					if (node->parent->right == node)
+						node = node->parent;
+					// get the left parent
+					else
+					{
+						while (node->parent && node->parent->left == node)
+							node = node->parent;
+						node = node->parent;
+					}
+				}
+				if (node)
+					m_ptr = node;
+				else
+					end = -4;
 				return *this;
+				// friend value_type &operator=(iterator const &other)
 			}
 			iterator operator--(int)
 			{
@@ -142,109 +300,56 @@ namespace ft
 			}
 
 		private:
-			value_type *m_ptr;
+			bst_node *m_ptr;
+			char end;
 		};
 
-		iterator begin() const { return iterator(pairs); }
-		iterator end() const { return iterator(pairs + _size); }
-		size_t size() const { return this->_size; }
-		bool empty() const { return this->_size == 0; }
+		mapped_type &operator[](const key_type &k)
+		{
+			bst_node *found = bst_search(this->root, k);
+			if (found)
+				return (found->key.second);
+			return _key;
+		}
+		iterator begin()
+		{
+			bst_node *left = root->left;
+			if (!left)
+				return root;
+			while (left->left)
+				left = left->left;
+			return iterator(left);
+		}
 
-		iterator find(const key_type &k) const
-		{
-			iterator it = map::begin();
-			while (it != map::end() && it->first != k)
-				it++;
-			return it;
-		}
-		pair<iterator, bool> insert(const value_type &val)
-		{
-			pair<iterator, bool> p;
-			if (map::find(val.first) != map::end())
-				return (p);
-			if (_size >= _capacity)
-			{
-				if (_capacity)
-				{
-					value_type *new_pairs = myAllocator.allocate(_capacity * 2);
-					for (size_t i = 0; i < _size; i++)
-						myAllocator.construct(new_pairs + i, pairs[i]);
-					for (size_t i = 0; i < _size; i++)
-						myAllocator.destroy(pairs + i);
-					myAllocator.deallocate(pairs, _capacity);
-					pairs = new_pairs;
-					_capacity *= 2;
-				}
-				else
-				{
-					_capacity *= 2;
-					pairs = myAllocator.allocate(1);
-					_capacity = 1;
-				}
-			}
-			myAllocator.construct(pairs + _size, val);
-			myAllocator.construct(pairs + _size, val);
-			_size++;
-			return (p);
-		}
-		iterator insert (iterator position, const value_type& val)
-		{
-			value_type value_at_position;
-			size_type i;
-			size_type new_position;
-			if (position == map::end())
-			{
-				map::insert(val);
-				return (map::begin());
-			}
-			if (_size >= _capacity)
-			{
-				value_at_position = *position;
-				value_type *new_pairs = myAllocator.allocate(_capacity * 2);
-				for (i = 0; pairs[i] != value_at_position; i++)
-					myAllocator.construct(new_pairs + i, pairs[i]);
-				for (i = 0; pairs[i] != value_at_position; i++)
-					myAllocator.destroy(pairs + i);
-				myAllocator.construct(new_pairs + i, val);
-				new_position = i;
-				for (; i < _size; i++)
-				{
-					myAllocator.construct(new_pairs + i + 1, pairs[i]);
-				}
-				for (i = new_position; i < _size; i++)
-					myAllocator.destroy(pairs + i);
-				myAllocator.deallocate(pairs, _capacity);
-				pairs = new_pairs;
-				_capacity *= 2;
-				_size += 1;
-			}
-			else
-			{
-				myAllocator.construct(pairs + _size, pairs[_size - 1]);
-				for (i = _size - 1; pairs[i] != *position; i--)
-				{
-					myAllocator.destroy(pairs + i);
-					myAllocator.construct(pairs + i, pairs[i - 1]);
-				}
-				new_position = i;
-				myAllocator.destroy(pairs + i);
-				myAllocator.construct(pairs + i, val);
-			}
-			return (map::begin() + new_position);
-		}
 		void clear()
 		{
-			for (size_type i = 0; i < _size; i++)
-				myAllocator.destroy(pairs + i);
+			bst_destroy(root);
 			_size = 0;
 		}
-		size_type count(const key_type &k) const
+
+		size_type count(const key_type &k) const { return (bool(bst_search(root, k))); }
+
+		bool empty() const { return _size == 0; }
+
+		iterator end()
 		{
-			if (map::find(k) != map::end())
-				return 1;
-			return 0;
+			bst_node *right = root->right;
+			if (!right)
+				return root;
+			while (right->right)
+				right = right->right;
+			return iterator(right + 4);
 		}
-		std::allocator<value_type> get_allocator() const { return map::myAllocator; }
+
+		std::pair<iterator, bool> insert(const value_type &val)
+		{
+			std::pair<iterator, bool> p;
+			bool inserted = true;
+			root = bst_insert(root, val, inserted);
+			_size += inserted;
+			return p;
+		}
+		size_type size() const { return _size; }
 	};
 }
 
@@ -252,35 +357,59 @@ namespace ft
 #define NAMESPACE std
 #endif
 
-#define log(x) std::cout << x << std::endl
-
-using namespace NAMESPACE;
-
-template <typename T1, typename T2>
-void print_map(map<T1, T2> &m)
-{
-	std::cout << "s: " << m.size() << ", c: " << m.capacity() << "| ";
-	if (m.size() <= 0)
-	{
-		std::cout << std::endl;
-		return;
-	}
-	for (size_t i = 0; i < m.size(); i++)
-		std::cout << "(" << m[0].first << ", " << m[0].second << ") ";
-	std::cout << std::endl;
-}
-
 int main()
 {
-	NAMESPACE::map<std::string, int> m;
-	// NAMESPACE::map<std::string, int> m;
 
-	m.insert(std::pair<std::string, int>("isel", 28));
-	m.insert(std::pair<std::string, int>("isel", 29));
-	m.insert(std::pair<std::string, int>("karim", 25));
-	NAMESPACE::map<std::string, int>::iterator it = m.find("karim");
-	if (it != m.end())
-		std::cout << "s: " << m.size() << ", " << it->first << ", " << it->second << std::endl;
-	std::cout << m.count("mona") << std::endl;
-	return 0;
+	NAMESPACE::map<std::string, int> m;
+
+	std::cout << "map is emty " << m.empty() << std::endl;
+	m.insert(std::pair<std::string, int>("issma", 28));
+	m.insert(std::pair<std::string, int>("yahya", 24));
+	m.insert(std::pair<std::string, int>("md", 23));
+	m.insert(std::pair<std::string, int>("ichoukri", 20));
+	m.insert(std::pair<std::string, int>("ichoukri", 40));
+
+	std::cout << "map is emty " << m.empty() << std::endl;
+	std::cout << m.count("yahya") << std::endl;
+	std::cout << m.count("yahyda") << std::endl;
+	std::cout << m.size() << std::endl;
+	m.clear();
+	std::cout << m.size() << std::endl;
+
+	// NAMESPACE::map<std::string, int >::iterator e = m.end();
+	// while (it != e)
+	// {
+	// 	std::cout << it->first << ", " << it->second << std::endl;
+	// 	it++;
+	// }
+	// std::cout << (*it == *b) << std::endl;
+
+	// std::cout << "----------------------------" << std::endl;
+	// std::cout << m[3] << std::endl;
+
+	// std::cout << "----------------------------" << std::endl;
+	// bst<std::pair<int, int> , std::greater<int> > *root = NULL;
+
+	// root = bst_insert(root, std::pair<int, int>(4, 5));
+	// root = bst_insert(root, std::pair<int, int>(2, 4));
+	// root = bst_insert(root, std::pair<int, int>(3, 55));iterator operator++(int)
+	// root = bst_insert(root, std::pair<int, int>(44, 7));
+	// root = bst_insert(root, std::pair<int, int>(564, 13));
+	// root = bst_insert(root, std::pair<int, int>(3434, 89));
+
+	// bst<std::pair<int, int> , std::greater<int> > *tmp = bst_search(root, 2);
+
+	// std::cout << tmp->key.first << ". " << tmp->key.second << std::endl;
+	// if (tmp->parent)
+	// {
+	// 	tmp = tmp->parent;
+	// }
+	// std::cout << tmp->key.first << ". " << tmp->key.second << std::endl;
+
+	// inorder(root);
 }
+
+//////////////////////////////// bugs ////////////////////////////////
+// cmp in bst needs to be static
+// map::end() return false value
+// *it = v (op overload missing)

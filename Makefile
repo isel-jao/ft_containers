@@ -3,7 +3,7 @@ NAME = container
 SRCS	= map.cpp
 HEADERS	= 
 
-CC			= clang++ -Wall -Werror -Wextra  -std=c++98
+CC			= clang++ 
 
 CPP_FLAGS	= -Wall -Werror -Wextra -std=c++98
 LD			= $(CC)
@@ -15,8 +15,8 @@ RM			= rm -rf
 all: $(NAME)
 
 $(NAME): $(SRCS) ${HEADERS}
-	$(CC) $(SRCS) -o std$(NAME)
-	$(CC) -D NAMESPACE=ft $(SRCS) -o ft$(NAME)
+	$(CC) $(CPP_FLAGS) $(SRCS) -o std$(NAME)
+	$(CC) $(CPP_FLAGS) -D NAMESPACE=ft $(SRCS) -o ft$(NAME)
 
 
 %.o: %.cpp $(HEADERS)

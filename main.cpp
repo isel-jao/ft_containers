@@ -157,8 +157,17 @@ namespace ft
 			}
 
 			T *get_addr() { return m_ptr; };
-			T &operator*() const { return *m_ptr; }
-			T *operator->() { return m_ptr; }
+			T &operator*() const { return *m_ptr; }/*  */
+			T &operator->() { 
+				std::cout << "here" << std::endl;
+				std::cout << "here" << std::endl;
+				std::cout << "here" << std::endl;
+				std::cout << "here" << std::endl;
+				std::cout << "here" << std::endl;
+				std::cout << "here" << std::endl;
+				std::cout << "here" << std::endl;
+				return *this; 
+				}
 			T &operator[](size_t index) { return *(m_ptr - index); }
 
 			reverse_iterator &operator+=(size_t index)
@@ -485,10 +494,10 @@ namespace ft
 					myAllocator.construct(arr + i, val);
 			length = n;
 		}
-		void swap (vector& x)
-		{
+		// void swap (vector& x)
+		// {
 			
-		}
+		// }
 		size_t max_size() const { return 0; };
 		bool empty() const { return length == 0; }
 		size_t size() const { return length; }
@@ -525,12 +534,14 @@ void print_vector(vector<T> &v)
 // iterator insert (iterator position, const value_type& val);
 int main()
 {
-	NAMESPACE::vector<int> v1;
+	NAMESPACE::vector<vec> v1;
 
 	for (int i = 0; i < 5; i++)
 		v1.push_back(i * 10);
-	v1.reserve(10);
+	
 	print_vector(v1);
-	print_vector(v1);
+	NAMESPACE::vector<vec>::iterator it = v1.begin();
+	std::cout << it->x << std::endl;
+	
 	return 0;
 }
