@@ -232,11 +232,13 @@ namespace ft
 			iterator &operator++()
 			{
 				bst_node *node = m_ptr;
+				// if it == m.begin() - 1
 				if (end < 0)
 				{
 					end = 0;
 					return *this;
 				}
+				// if it == m.end()
 				if (end > 0)
 					return *this;
 				if (node->right)
@@ -250,7 +252,7 @@ namespace ft
 					// check if node is the left sibling
 					if (node->parent->left == node)
 						node = node->parent;
-					// get the right parent
+					// get the first parent of right sibling
 					else
 					{
 						while (node->parent && node->parent->right == node)
@@ -339,6 +341,7 @@ namespace ft
 		void clear()
 		{
 			bst_destroy(root);
+			root = NULL;
 			_size = 0;
 		}
 
