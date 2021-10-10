@@ -7,32 +7,6 @@
 #include <deque>
 #include <stack>
 
-#define waza() std::cout << "WAZAAAAAAAA,\t\tline: " << __LINE__ << ",\tfunc: " << __FUNCTION__ << std::endl
-
-struct vec
-{
-	int x, y, z;
-	vec(int x = 0, int y = 0, int z = 0) : x(x), y(y), z(z)
-	{
-		std::cout << "constructor called" << std::endl;
-	}
-	vec(vec const &obj) : x(obj.x), y(obj.y), z(obj.z)
-	{
-		std::cout << "copy constructor called" << std::endl;
-	}
-	vec &operator=(vec &obj)
-	{
-		std::cout << "oparetor = is called" << std::endl;
-		x = obj.x;
-		y = obj.y;
-		z = obj.z;
-		return *this;
-	}
-	~vec()
-	{
-		std::cout << "vec deconstructor called" << std::endl;
-	}
-};
 
 #define value_type T
 #define container_type Container
@@ -88,8 +62,8 @@ namespace ft
 
 int main()
 {
-	NAMESPACE::stack<int> s1;
-	NAMESPACE::stack<int> s2;
+	NAMESPACE::stack<int,std::deque<int> > s1;
+	NAMESPACE::stack<int,std::deque<int> > s2;
 
 	s2.push(34);
 	s1.push(4);
