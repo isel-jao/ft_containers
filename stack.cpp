@@ -57,27 +57,27 @@ namespace ft
 		const value_type &top() const { return *(--containter.end()); }
 		friend bool operator==(const stack<T, Container> &lhs, const stack<T, Container> &rhs)
 		{
-			return lhs.value == rhs.value;
+			return lhs.containter == rhs.containter;
 		}
 		friend bool operator!=(const stack<T, Container> &lhs, const stack<T, Container> &rhs)
 		{
-			return lhs.value != rhs.value;
+			return lhs.containter != rhs.containter;
 		}
 		friend bool operator<(const stack<T, Container> &lhs, const stack<T, Container> &rhs)
 		{
-			return lhs.value < rhs.value;
+			return lhs.containter < rhs.containter;
 		}
 		friend bool operator<=(const stack<T, Container> &lhs, const stack<T, Container> &rhs)
 		{
-			return lhs.value <= rhs.value;
+			return lhs.containter <= rhs.containter;
 		}
 		friend bool operator>(const stack<T, Container> &lhs, const stack<T, Container> &rhs)
 		{
-			return lhs.value > rhs.value;
+			return lhs.containter > rhs.containter;
 		}
 		friend bool operator>=(const stack<T, Container> &lhs, const stack<T, Container> &rhs)
 		{
-			return lhs.value >= rhs.value;
+			return lhs.containter >= rhs.containter;
 		}
 	};
 }
@@ -101,17 +101,17 @@ int main()
 		std::cout << s1.top() << std::endl;
 		s1.pop();
 	}
-	std::cout << "\n\ns2.size: " << s2.size() << std::endl;
+	std::cout << "s2.size: " << s2.size() << std::endl;
 	while (!s2.empty())
 	{
 		std::cout << s2.top() << std::endl;
-		s1.pop();
+		s2.pop();
 	}
-	std::cout << (s1 == s2) << std::endl;
-	std::cout << (s1 != s2) << std::endl;
-	std::cout << (s1 > s2) << std::endl;
-	std::cout << (s1 >= s2) << std::endl;
-	std::cout << (s1 < s2) << std::endl;
-	std::cout << (s1 <= s2) << std::endl;
+	std::cout << "s1 == s2:\t" << (s1 == s2) << std::endl;
+	std::cout << "s1 != s2:\t" << (s1 != s2) << std::endl;
+	std::cout << "s1 > s2:\t" << (s1 > s2) << std::endl;
+	std::cout << "s1 >= s2:\t" << (s1 >= s2) << std::endl;
+	std::cout << "s1 < s2:\t" << (s1 < s2) << std::endl;
+	std::cout << "s1 <= s2:\t" << (s1 <= s2) << std::endl;
 	return 0;
 }
