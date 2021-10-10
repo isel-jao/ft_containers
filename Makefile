@@ -1,6 +1,6 @@
 NAME = container
 
-SRCS	= map.cpp
+SRCS	= stack.cpp
 HEADERS	= 
 
 CC			= clang++ 
