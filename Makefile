@@ -1,6 +1,6 @@
 NAME = container
 
-SRCS	= stack.cpp
+SRCS	= vector.cpp
 HEADERS	= 
 
 CC			= clang++ 
@@ -23,7 +23,7 @@ $(NAME): $(SRCS) ${HEADERS}
 	$(CC) -c $(CPP_FLAGS) $< -o $@
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJS) ft std 
 
 fclean: clean
 	$(RM) *$(NAME)

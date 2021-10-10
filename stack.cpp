@@ -7,15 +7,15 @@
 #include <deque>
 #include <stack>
 
-
-#define value_type T
-#define container_type Container
-#define size_type size_t
 namespace ft
 {
 	template <class T, class Container = std::deque<T> >
 	class stack
 	{
+		typedef T value_type;
+		typedef Container container_type;
+		typedef size_t size_type;
+
 	private:
 		value_type value;
 		container_type containter;
@@ -29,6 +29,8 @@ namespace ft
 		size_type size() const { return containter.size(); }
 		value_type &top() { return *(--containter.end()); }
 		const value_type &top() const { return *(--containter.end()); }
+		
+		//Each of these operator overloads calls the same operator on the underlying container objects.
 		friend bool operator==(const stack<T, Container> &lhs, const stack<T, Container> &rhs)
 		{
 			return lhs.containter == rhs.containter;
@@ -62,20 +64,23 @@ namespace ft
 
 int main()
 {
-	NAMESPACE::stack<int,std::deque<int> > s1;
-	NAMESPACE::stack<int,std::deque<int> > s2;
+	NAMESPACE::stack<int> s1;
+	NAMESPACE::stack<int> s2;
 
-	s2.push(34);
-	s1.push(4);
-	s1.push(14);
-	s1.push(54);
-	std::cout << "s1.size: " << s1.size() << std::endl;
+	s2.push(42);
+	s2.push(1337);
+	s1.push(17);
+	s1.push(11);
+	s1.push(12);
+	s1.push(9);
+	s1.push(8);
+	std::cout << "s1.size\t=" << s1.size() << std::endl;
 	while (!s1.empty())
 	{
 		std::cout << s1.top() << std::endl;
 		s1.pop();
 	}
-	std::cout << "s2.size: " << s2.size() << std::endl;
+	std::cout << "\ns2.size\t=" << s2.size() << std::endl;
 	while (!s2.empty())
 	{
 		std::cout << s2.top() << std::endl;

@@ -45,36 +45,36 @@ namespace ft
 	class vector
 	{
 	private:
-		std::allocator<T> myAllocator;
+		std::allocator<T> _allocator;
 		T *arr;
-		size_t length;
-		size_t allocated;
+		size_t _size;
+		size_t _capacity;
 
 	public:
-		vector(size_t const n = 0, T value = T()) : length(n), allocated(n)
+		vector(size_t const n = 0, T value = T()) : _size(n), _capacity(n)
 		{
-			if (allocated)
+			if (_capacity)
 			{
-				arr = myAllocator.allocate(allocated);
-				for (size_t i = 0; i < allocated; i++)
-					myAllocator.construct(arr + i, value);
+				arr = _allocator.allocate(_capacity);
+				for (size_t i = 0; i < _capacity; i++)
+					_allocator.construct(arr + i, value);
 			}
 		}
-		vector(vector<T> &other) : length(other.length), allocated(other.allocated)
+		vector(vector<T> &x) : _size(x._size), _capacity(x._capacity)
 		{
-			if (allocated)
+			if (_capacity)
 			{
-				arr = myAllocator.allocate(allocated);
-				for (size_t i = 0; i < length; i++)
-					myAllocator.construct(arr + i);
+				arr = _allocator.allocate(_capacity);
+				for (size_t i = 0; i < _size; i++)
+					_allocator.construct(arr + i);
 			}
 		}
 		// template <class InputIterator>
 		// vector(InputIterator first, InputIterator last, const std::allocator<T> &alloc = allocator_type()){}
 		~vector()
 		{
-			for (size_t i = 0; i < allocated; i++)
-				myAllocator.destroy(arr + i);
+			for (size_t i = 0; i < _capacity; i++)
+				_allocator.destroy(arr + i);
 		}
 		class iterator
 		{
@@ -219,35 +219,35 @@ namespace ft
 		};
 
 		iterator begin() { return iterator(arr); }
-		iterator end() { return iterator(arr + length); }
+		iterator end() { return iterator(arr + _size); }
 
-		reverse_iterator rbegin() { return reverse_iterator(arr + length - 1); }
+		reverse_iterator rbegin() { return reverse_iterator(arr + _size - 1); }
 		reverse_iterator rend() { return reverse_iterator(arr - 1); }
 		void push_back(T val)
 		{
-			if (length >= allocated)
+			if (_size >= _capacity)
 			{
-				if (allocated)
+				if (_capacity)
 				{
-					T *new_arr = myAllocator.allocate(allocated * 2);
-					for (size_t i = 0; i < length; i++)
-						myAllocator.construct(new_arr + i, arr[i]);
-					for (size_t i = 0; i < length; i++)
-						myAllocator.destroy(arr + i);
-					myAllocator.deallocate(arr, allocated);
+					T *new_arr = _allocator.allocate(_capacity * 2);
+					for (size_t i = 0; i < _size; i++)
+						_allocator.construct(new_arr + i, arr[i]);
+					for (size_t i = 0; i < _size; i++)
+						_allocator.destroy(arr + i);
+					_allocator.deallocate(arr, _capacity);
 					arr = new_arr;
-					allocated *= 2;
+					_capacity *= 2;
 				}
 				else
 				{
-					allocated *= 2;
-					arr = myAllocator.allocate(1);
-					allocated = 1;
+					_capacity *= 2;
+					arr = _allocator.allocate(1);
+					_capacity = 1;
 				}
 			}
-			myAllocator.construct(arr + length, val);
-			myAllocator.construct(arr + length, val);
-			length++;
+			_allocator.construct(arr + _size, val);
+			_allocator.construct(arr + _size, val);
+			_size++;
 		}
 		iterator insert(iterator position, const T &val)
 		{
@@ -259,38 +259,38 @@ namespace ft
 				vector::push_back(val);
 				return (vector::begin());
 			}
-			if (length >= allocated)
+			if (_size >= _capacity)
 			{
 				value_at_position = *position;
-				T *new_arr = myAllocator.allocate(allocated * 2);
+				T *new_arr = _allocator.allocate(_capacity * 2);
 				for (i = 0; arr[i] != value_at_position; i++)
-					myAllocator.construct(new_arr + i, arr[i]);
+					_allocator.construct(new_arr + i, arr[i]);
 				for (i = 0; arr[i] != value_at_position; i++)
-					myAllocator.destroy(arr + i);
-				myAllocator.construct(new_arr + i, val);
+					_allocator.destroy(arr + i);
+				_allocator.construct(new_arr + i, val);
 				new_position = i;
-				for (; i < length; i++)
+				for (; i < _size; i++)
 				{
-					myAllocator.construct(new_arr + i + 1, arr[i]);
+					_allocator.construct(new_arr + i + 1, arr[i]);
 				}
-				for (i = new_position; i < length; i++)
-					myAllocator.destroy(arr + i);
-				myAllocator.deallocate(arr, allocated);
+				for (i = new_position; i < _size; i++)
+					_allocator.destroy(arr + i);
+				_allocator.deallocate(arr, _capacity);
 				arr = new_arr;
-				allocated *= 2;
-				length += 1;
+				_capacity *= 2;
+				_size += 1;
 			}
 			else
 			{
-				myAllocator.construct(arr + length, arr[length - 1]);
-				for (i = length - 1; arr[i] != *position; i--)
+				_allocator.construct(arr + _size, arr[_size - 1]);
+				for (i = _size - 1; arr[i] != *position; i--)
 				{
-					myAllocator.destroy(arr + i);
-					myAllocator.construct(arr + i, arr[i - 1]);
+					_allocator.destroy(arr + i);
+					_allocator.construct(arr + i, arr[i - 1]);
 				}
 				new_position = i;
-				myAllocator.destroy(arr + i);
-				myAllocator.construct(arr + i, val);
+				_allocator.destroy(arr + i);
+				_allocator.construct(arr + i, val);
 			}
 			return (vector::begin() + new_position);
 		}
@@ -305,41 +305,41 @@ namespace ft
 					vector::push_back(val);
 				return;
 			}
-			if (length + n > allocated)
+			if (_size + n > _capacity)
 			{
 				value_at_position = *position;
-				T *new_arr = myAllocator.allocate(allocated + n);
+				T *new_arr = _allocator.allocate(_capacity + n);
 				for (i = 0; arr[i] != value_at_position; i++)
-					myAllocator.construct(new_arr + i, arr[i]);
+					_allocator.construct(new_arr + i, arr[i]);
 				for (i = 0; arr[i] != value_at_position; i++)
-					myAllocator.destroy(arr + i);
+					_allocator.destroy(arr + i);
 				new_position = i;
 				for (size_t j = 0; j < n; j++)
-					myAllocator.construct(new_arr + i + j, val);
-				for (; i < length; i++)
+					_allocator.construct(new_arr + i + j, val);
+				for (; i < _size; i++)
 				{
-					myAllocator.construct(new_arr + i + n, arr[i]);
+					_allocator.construct(new_arr + i + n, arr[i]);
 				}
-				for (i = new_position; i < length; i++)
-					myAllocator.destroy(arr + i);
-				myAllocator.deallocate(arr, allocated);
+				for (i = new_position; i < _size; i++)
+					_allocator.destroy(arr + i);
+				_allocator.deallocate(arr, _capacity);
 				arr = new_arr;
-				allocated += n;
-				length += n;
+				_capacity += n;
+				_size += n;
 			}
 			else
 			{
-				myAllocator.construct(arr + length + n - 1, arr[length - 1]);
-				for (i = length + n - 1; arr[i - n + 1] != *position; i--)
+				_allocator.construct(arr + _size + n - 1, arr[_size - 1]);
+				for (i = _size + n - 1; arr[i - n + 1] != *position; i--)
 				{
-					myAllocator.destroy(arr + i);
-					myAllocator.construct(arr + i, arr[i - n]);
+					_allocator.destroy(arr + i);
+					_allocator.construct(arr + i, arr[i - n]);
 				}
-				length += n;
+				_size += n;
 				while (n-- > 0)
 				{
-					myAllocator.destroy(arr + i);
-					myAllocator.construct(arr + i, val);
+					_allocator.destroy(arr + i);
+					_allocator.construct(arr + i, val);
 					i--;
 				}
 			}
@@ -359,90 +359,90 @@ namespace ft
 					vector::push_back(*first++);
 				return;
 			}
-			if (length + n > allocated)
+			if (_size + n > _capacity)
 			{
 				value_at_position = *position;
-				T *new_arr = myAllocator.allocate(allocated + n);
+				T *new_arr = _allocator.allocate(_capacity + n);
 				for (i = 0; arr[i] != value_at_position; i++)
-					myAllocator.construct(new_arr + i, arr[i]);
+					_allocator.construct(new_arr + i, arr[i]);
 				for (i = 0; arr[i] != value_at_position; i++)
-					myAllocator.destroy(arr + i);
+					_allocator.destroy(arr + i);
 				new_position = i;
 				for (size_t j = 0; j < n; j++)
-					myAllocator.construct(new_arr + i + j, *first++);
-				for (; i < length; i++)
-					myAllocator.construct(new_arr + i + n, arr[i]);
-				for (i = new_position; i < length; i++)
-					myAllocator.destroy(arr + i);
-				myAllocator.deallocate(arr, allocated);
+					_allocator.construct(new_arr + i + j, *first++);
+				for (; i < _size; i++)
+					_allocator.construct(new_arr + i + n, arr[i]);
+				for (i = new_position; i < _size; i++)
+					_allocator.destroy(arr + i);
+				_allocator.deallocate(arr, _capacity);
 				arr = new_arr;
-				allocated += n;
-				std::cout << allocated << std::endl;
-				length += n;
+				_capacity += n;
+				std::cout << _capacity << std::endl;
+				_size += n;
 			}
 			else
 			{
-				myAllocator.construct(arr + length + n - 1, arr[length - 1]);
-				for (i = length + n - 1; arr[i - n + 1] != *position; i--)
+				_allocator.construct(arr + _size + n - 1, arr[_size - 1]);
+				for (i = _size + n - 1; arr[i - n + 1] != *position; i--)
 				{
-					myAllocator.destroy(arr + i);
-					myAllocator.construct(arr + i, arr[i - n]);
+					_allocator.destroy(arr + i);
+					_allocator.construct(arr + i, arr[i - n]);
 				}
-				length += n;
+				_size += n;
 				while (n-- > 0)
 				{
-					myAllocator.destroy(arr + i);
-					myAllocator.construct(arr + i, *(first + n));
+					_allocator.destroy(arr + i);
+					_allocator.construct(arr + i, *(first + n));
 					i--;
 				}
 			}
 		}
 		void assign(size_t n, T val)
 		{
-			for (size_t i = 0; i < length; i++)
-				myAllocator.destroy(arr + i);
-			if (n && n > allocated)
+			for (size_t i = 0; i < _size; i++)
+				_allocator.destroy(arr + i);
+			if (n && n > _capacity)
 			{
-				myAllocator.deallocate(arr, allocated);
-				arr = myAllocator.allocate(n);
-				allocated = n;
+				_allocator.deallocate(arr, _capacity);
+				arr = _allocator.allocate(n);
+				_capacity = n;
 			}
 			for (size_t i = 0; i < n; i++)
-				myAllocator.construct(arr + i, val);
-			length = n;
+				_allocator.construct(arr + i, val);
+			_size = n;
 		}
 		template <class InputIterator>
 		void assign(InputIterator first, InputIterator last)
 		{
-			for (size_t i = 0; i < length; i++)
-				myAllocator.destroy(arr + i);
-			length = 0;
-			while (first + length < last)
-				length++;
-			std::cout << length << std::endl;
-			if (length > allocated)
+			for (size_t i = 0; i < _size; i++)
+				_allocator.destroy(arr + i);
+			_size = 0;
+			while (first + _size < last)
+				_size++;
+			std::cout << _size << std::endl;
+			if (_size > _capacity)
 			{
-				myAllocator.deallocate(arr, allocated);
-				arr = myAllocator.allocate(length);
-				allocated = length;
+				_allocator.deallocate(arr, _capacity);
+				arr = _allocator.allocate(_size);
+				_capacity = _size;
 			}
-			for (length = 0; first + length < last; length++)
+			for (_size = 0; first + _size < last; _size++)
 			{
-				arr[length] = first[length];
-				length++;
+				arr[_size] = first[_size];
+				_size++;
 			}
 		}
 		T &at(size_t index) { return *(arr + index); }
 		const T &at(size_t index) const { return *(arr + index); }
-		T &back() { return *(arr + length - 1); }
-		const T &back() const { return *(arr + length - 1); }
+		T &back() { return *(arr + _size - 1); }
+		const T &back() const { return *(arr + _size - 1); }
 		T &fornt() { return *(arr); }
 
 		void clear()
 		{
-			for (size_t i = 0; i < length; i++)
-				myAllocator.destroy(arr + i);
-			length = 0;
+			for (size_t i = 0; i < _size; i++)
+				_allocator.destroy(arr + i);
+			_size = 0;
 		}
 
 		iterator erase(iterator first, iterator last = NULL)
@@ -462,48 +462,48 @@ namespace ft
 				*(first + i) = *(last + i);
 			}
 			for (size_t i = 0; i < count; i++)
-				myAllocator.destroy(arr + length - 1 - i);
-			length -= count;
+				_allocator.destroy(arr + _size - 1 - i);
+			_size -= count;
 			return (first);
 		}
 		void reserve(size_t n)
 		{
-			if (allocated >= n)
+			if (_capacity >= n)
 				return;
-			T *new_arr = myAllocator.allocate(n);
-			for (size_t i = 0; i < length; i++)
-				myAllocator.construct(new_arr + i, arr[i]);
-			for (size_t i = 0; i < length; i++)
-				myAllocator.destroy(arr + i);
-			myAllocator.deallocate(arr, allocated);
+			T *new_arr = _allocator.allocate(n);
+			for (size_t i = 0; i < _size; i++)
+				_allocator.construct(new_arr + i, arr[i]);
+			for (size_t i = 0; i < _size; i++)
+				_allocator.destroy(arr + i);
+			_allocator.deallocate(arr, _capacity);
 			arr = new_arr;
-			allocated = n;
+			_capacity = n;
 		}
 		void resize(size_t n, T val = T())
 		{
 			size_t i;
-			if (n > allocated)
+			if (n > _capacity)
 			{
-				allocated = n;
-				T *new_arr = myAllocator.allocate(n);
-				for (size_t i = 0; i < length; i++)
-					myAllocator.construct(new_arr + i, arr[i]);
+				_capacity = n;
+				T *new_arr = _allocator.allocate(n);
+				for (size_t i = 0; i < _size; i++)
+					_allocator.construct(new_arr + i, arr[i]);
 				arr = new_arr;
 			}
-			for (i = length; i  < n; i++)
-					myAllocator.construct(arr + i, val);
-			length = n;
+			for (i = _size; i  < n; i++)
+					_allocator.construct(arr + i, val);
+			_size = n;
 		}
 		// void swap (vector& x)
 		// {
 			
 		// }
 		size_t max_size() const { return 0; };
-		bool empty() const { return length == 0; }
-		size_t size() const { return length; }
-		size_t capacity() const { return allocated; }
+		bool empty() const { return _size == 0; }
+		size_t size() const { return _size; }
+		size_t capacity() const { return _capacity; }
 		T &operator[](size_t d) const { return arr[d]; }
-		std::allocator<T> get_allocator() const { return vector::myAllocator; }
+		std::allocator<T> get_allocator() const { return vector::_allocator; }
 	};
 
 };
