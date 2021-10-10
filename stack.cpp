@@ -95,9 +95,16 @@ int main()
 	s1.push(4);
 	s1.push(14);
 	s1.push(54);
+	std::cout << "s1.size: " << s1.size() << std::endl;
 	while (!s1.empty())
 	{
 		std::cout << s1.top() << std::endl;
+		s1.pop();
+	}
+	std::cout << "\n\ns2.size: " << s2.size() << std::endl;
+	while (!s2.empty())
+	{
+		std::cout << s2.top() << std::endl;
 		s1.pop();
 	}
 	std::cout << (s1 == s2) << std::endl;
