@@ -169,6 +169,22 @@ Node *bst_search(Node *root, K const &key)
 	else
 		return (bst_search(root->right, key));
 }
+template <typename Node, typename K>
+Node *bst_nearest(Node *root, K const &key)
+{
+	if (!root || root->key.first == key)
+		return root;
+	while (true)
+	{
+		if (root->left && root->cmp(key, root->key.first))
+			root = root->left;
+		else if(root->right && root->cmp( root->key.first, key))
+			root = root->right;
+		else 
+			return root;
+	}
+	
+}
 
 template <typename Node>
 void bst_destroy(Node *root)
@@ -215,7 +231,7 @@ namespace ft
 		value_type _value;
 		bst_node *root;
 		size_type _size;
-
+		key_compare cmp;
 	public:
 		map()
 			: _key(key_type()), _mapped(mapped_type()), _value(value_type()), root(NULL), _size(0) {}
@@ -396,6 +412,18 @@ namespace ft
 			}
 		}
 
+		// return iterator to the element, if an element with specified key is found, or map::end otherwise.
+		iterator find (const key_type& k)
+		{
+			bst_node *node = bst_search(root, k);
+			if (node)
+				return iterator(node);
+			else
+				return(map::end());
+		}
+
+		// return The allocator.
+		// allocator_type get_allocator() const { return }
 		std::pair<iterator, bool> insert(const value_type &val)
 		{
 			std::pair<iterator, bool> p;
@@ -403,6 +431,25 @@ namespace ft
 			root = bst_insert(root, val, inserted);
 			_size += inserted;
 			return p;
+		}
+
+		iterator lower_bound (const key_type& k)
+		{
+			bst_node *node = bst_nearest(root, k);
+			iterator it =  iterator(node);
+			if (cmp(it->first, k))
+				it++;
+			return it;
+		}
+
+		iterator upper_bound (const key_type& k)
+		{
+			bst_node *node = bst_nearest(root, k);
+			iterator it =  iterator(node);
+			if (it->first == k ||  cmp(it->first, k))
+				it++;
+			return it;
+
 		}
 		size_type size() const { return _size; }
 	};
@@ -426,21 +473,24 @@ int main()
 	m.insert(std::pair<std::string, int>("ichoukri1", 20));
 	m.insert(std::pair<std::string, int>("ichoukri2", 40));
 
-	NAMESPACE::map<std::string, int >::iterator b = m.begin();
-	NAMESPACE::map<std::string, int >::iterator it, it1, it2;
-	// NAMESPACE::map<std::string, int >::iterator e = m.end();
-
-
-	it1 = ++b;
-	it2 = ++it1;
-	++it2;
-	++it2;
-	m.erase(it1, it2);
-	int count = 0;
-	for(it = m.begin() ; it != m.end() && count++ < 30; it++ )
-	{
+	NAMESPACE::map<std::string, int >::iterator it = m.upper_bound("issam01");
+	if (it != m.end())
 		std::cout << it->first << ", " << it->second << std::endl;
-	}
+	// NAMESPACE::map<std::string, int >::iterator b = m.begin();
+	// NAMESPACE::map<std::string, int >::iterator it, it1, it2;
+	// // NAMESPACE::map<std::string, int >::iterator e = m.end();
+
+
+	// it1 = ++b;
+	// it2 = ++it1;
+	// ++it2;
+	// ++it2;
+	// m.erase(it1, it2);
+	// int count = 0;
+	// for(it = m.begin() ; it != m.end() && count++ < 30; it++ )
+	// {
+	// 	std::cout << it->first << ", " << it->second << std::endl;
+	// }
 
 
 	// std::cout << "----------------------------" << std::endl;
