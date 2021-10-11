@@ -210,7 +210,7 @@ namespace ft
 			reverse_iterator operator--(int)
 			{
 				reverse_iterator tmp = *this;
-				++(*this);
+				++(*this);size_type capacity() const;
 				return tmp;
 			}
 
@@ -432,6 +432,7 @@ namespace ft
 				_size++;
 			}
 		}
+
 		T &at(size_t index) { return *(arr + index); }
 		const T &at(size_t index) const { return *(arr + index); }
 		T &back() { return *(arr + _size - 1); }
