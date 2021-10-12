@@ -6,7 +6,7 @@ HEADERS	=
 CC			= clang++ 
 
 CPP_FLAGS	= -Wall -Werror -Wextra -std=c++98
-LD			= $(CC)
+# CPP_FLAGS	= -Wall -Werror -Wextra 
 
 OBJS		= $(SRCS:%.cpp=%.o)
 
