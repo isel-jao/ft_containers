@@ -1,6 +1,6 @@
 NAME = container
 
-SRCS	= vector.cpp
+SRCS	= test.cpp
 HEADERS	= 
 
 CC			= clang++ 
