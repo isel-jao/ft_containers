@@ -10,7 +10,6 @@
 
 #define waza() std::cout << "WAZAAAAAAAA,\t\tline: " << __LINE__ << ",\tfunc: " << __FUNCTION__ << std::endl
 
-
 // struct vec
 // {
 // 	int x, y, z;
@@ -41,8 +40,6 @@
 // 	out << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 // 	return out;
 // }
-
-
 
 #ifndef NAMESPACE
 #define NAMESPACE std
@@ -81,29 +78,65 @@ int main()
 	try
 	{
 		int arr[] = {1, 2, 4, 5, 6, 7, 8, 9};
-		int arr2[] = {11, 22, 33, 44, 55, 66, 77, 88, 99, 111, 222, 333, 4444};
 		NAMESPACE::vector<int> v;
 		NAMESPACE::vector<int>::iterator it;
-		std::cout << "vector::max_size(): " << v.max_size() << std::endl;
 		v.assign(arr, arr + 8);
-		std::cout << "vector::at(): " << v.at(3) << std::endl;
-		std::cout << "vector::back(): " << v.back() << std::endl;
-		std::cout << "vector::begin(): " << *(v.begin()) << std::endl;
-		std::cout << "vector::capacity(): " << v.capacity() << std::endl;
-		std::cout << "vector::end(): " << *(v.end() - 1) << std::endl;
-		print_container(v, " ");
+		// std::cout << "vector::at(): " << v.at(3) << std::endl;
+		// std::cout << "vector::back(): " << v.back() << std::endl;
+		// std::cout << "vector::begin(): " << *(v.begin()) << std::endl;
+		// std::cout << "vector::capacity(): " << v.capacity() << std::endl;
+		// std::cout << "vector::end(): " << *(v.end() - 1) << std::endl;
 		v.erase(v.begin() + 2);
 		v.erase(v.begin() + 1, v.begin() + 4);
-		print_container(v, " ");
 		it = v.insert(v.begin() + 1, 1337);
 		std::cout << *it << std::endl;
-		print_container(v, " ");
-		v.insert(v.begin() + 1, arr2 + 1, arr2 + 7);
-		print_container(v, " ");
+		// int arr2[] = {11, 22, 33, 44, 55, 66, 77, 88, 99, 111, 222, 333, 4444};
+		// v.insert(v.begin() + 1, arr2 + 1, arr2 + 7);
+		// print_container(v, " ");
 		// v.insert(v.begin() + 2, 5, 4);
 		// print_container(v, " ");
-		// v.pop_back();
+		v.pop_back();
+		v.push_back(1992);
+		NAMESPACE::vector<int>::reverse_iterator rb = v.rbegin();
+		NAMESPACE::vector<int>::reverse_iterator re = v.rend();
+		while (rb != re)
+		{
+			std::cout << *rb << " ";
+			rb++;
+		}
+		std::cout << std::endl;
+		v.reserve(4);
+		v.reserve(30);
+		v.resize(10);
+		v.resize(3);
+		NAMESPACE::vector<int> v2(v);
+		v.push_back(9);
+		v.push_back(9);
+		v.push_back(9);
+		// std::cout << "(v == v2): " << (v == v2) << std::endl;
+		// std::cout << "(v != v2): " << (v != v2) << std::endl;
+		// std::cout << "(v < v2): " << (v < v2) << std::endl;
+		// std::cout << "(v <= v2): " << (v <= v2) << std::endl;
+		// std::cout << "(v > v2): " << (v > v2) << std::endl;
+		// std::cout << "(v >= v2): " << (v >= v2) << std::endl;
+
+		// v[2] = -1;
+		// v[1] = 99999999;
+		// std::cout << "(v == v2): " << (v == v2) << std::endl;
+		// std::cout << "(v != v2): " << (v != v2) << std::endl;
+		// std::cout << "(v < v2): " << (v < v2) << std::endl;
+		// std::cout << "(v <= v2): " << (v <= v2) << std::endl;
+		// std::cout << "(v > v2): " << (v > v2) << std::endl;
+		// std::cout << "(v >= v2): " << (v >= v2) << std::endl;
+		std::cout << "==================================================================================" << std::endl;
 		// print_container(v, " ");
+		// print_container(v2, " ");
+		v2.swap(v);
+		print_container(v, " ");
+		print_container(v2, " ");
+		NAMESPACE::swap(v, v2);
+		print_container(v, " ");
+		print_container(v2, " ");
 	}
 	catch (const std::exception &e)
 	{
@@ -112,7 +145,6 @@ int main()
 
 	return 0;
 }
-
 
 //////// bugs ////////
 // after insert copacity is set to a wrong value

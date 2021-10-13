@@ -86,8 +86,7 @@ namespace ft
 			{
 				if (*this == other)
 					return (*this);
-				m_ptr = other.m_ptr;
-				return (*this);
+				this->ass
 			}
 
 			T *get_addr() { return m_ptr; };

@@ -20,6 +20,8 @@ namespace ft
 		typedef typename allocator_type::const_pointer const_pointer;	  // const T*
 		typedef typename ft::vector_iterator<pointer> iterator;
 		typedef typename ft::vector_iterator<const_pointer> const_iterator;
+		typedef typename ft::vector_reverse_iterator<pointer> reverse_iterator;
+		typedef typename ft::vector_reverse_iterator<const_pointer> const_reverse_iterator;
 		typedef size_t size_type;
 
 	private:
@@ -30,8 +32,16 @@ namespace ft
 		void checkRange(const size_type &n) const
 		{
 			if (n >= _size)
-				// throw(std::out_of_range("vector::checkRange: n (which is " + std::to_string(n) + ") >= this->size() (which is " + std::to_string(_size) + ")"));
 				throw(std::out_of_range("vector"));
+		}
+
+		template <class data>
+		void swap_data(data &x, data &y)
+		{
+			data tmp;
+			tmp = x;
+			x = y;
+			y = tmp;
 		}
 
 	public:
@@ -69,11 +79,11 @@ namespace ft
 		}
 
 		//////// copy constructors ////////
-		vector(const vector &x) : _capacity(x._capacity), _size(x._size)
+		vector(const vector &x) : _capacity(x._size), _size(x._size)
 		{
 			if (_capacity)
 			{
-				arr = _allocator.allocate(_capacity);
+				arr = _allocator.allocate(_size);
 				for (size_t i = 0; i < _size; i++)
 					_allocator.construct(arr + i, x[i]);
 			}
@@ -85,6 +95,7 @@ namespace ft
 			for (size_t i = 0; i < _capacity; i++)
 				_allocator.destroy(arr + i);
 		}
+
 		//  the new contents are elements constructed from each of the elements in the range between first and last, in the same order.
 		template <class InputIterator>
 		void assign(InputIterator first, InputIterator last)
@@ -123,7 +134,7 @@ namespace ft
 				_allocator.construct(arr + i, val);
 			_size = n;
 		}
-		// The function automatically checks whether n is within the bounds of valid elements in the vector, throwing an out_of_range exception if it is not (i.e., if n is greater than, or equal to, its size). This is in contrast with member operator[], that does not check against bounds.
+		// The function automatically checks whether n is within the bounds of valid elements in the vector, throwing an out_of_range exception if it is not (i.e., if n is greater than, or equal to, its size)
 		reference at(size_type n)
 		{
 			checkRange(n);
@@ -134,6 +145,7 @@ namespace ft
 			checkRange(n);
 			return *(arr + n);
 		}
+
 		// Returns a reference to the last element in the vector.
 		reference back() { return *(arr + _size - 1); }
 		const_reference back() const { return *(arr + _size - 1); }
@@ -348,19 +360,25 @@ namespace ft
 		// Returns the maximum number of elements that the vector can hold.
 		size_type max_size(void) const { return allocator_type().max_size(); }
 
-		// Removes the last element in the vector, effectively reducing the container size by one.
-		void pop_back()
+		vector &operator=(const vector &x)
 		{
-			if(_size == 0)
-				return;
-			allocator_type().destroy(arr + --_size);
+			if (this == &x)
+				return *this;
+			this->assign(x.begin(), x.end());
+			return *this;
 		}
-
 
 		//Returns a reference to the element at position n in the vector container.
 		reference operator[](size_type n) { return arr[n]; }
 		const_reference operator[](size_type n) const { return arr[n]; }
 
+		// Removes the last element in the vector, effectively reducing the container size by one.
+		void pop_back()
+		{
+			if (_size == 0)
+				return;
+			allocator_type().destroy(arr + --_size);
+		}
 		// Adds a new element at the end of the vector, after its current last element. The content of val is copied (or moved) to the new element.
 		void push_back(const value_type &val)
 		{
@@ -385,12 +403,133 @@ namespace ft
 				}
 			}
 			_allocator.construct(arr + _size, val);
-			_allocator.construct(arr + _size, val);
 			_size++;
 		}
 
+		// Returns a reverse iterator pointing to the last element in the vector (i.e., its reverse beginning).
+		reverse_iterator rbegin() { return reverse_iterator(arr + _size - 1); }
+		const_reverse_iterator rbegin() const
+		{
+			{
+				return const_reverse_iterator(arr + _size - 1);
+			}
+		}
+
+		// Returns a reverse iterator pointing to the theoretical element preceding the first element in the vector (which is considered its reverse end).
+		reverse_iterator rend() { return reverse_iterator(arr - 1); }
+		const_reverse_iterator rend() const { return const_reverse_iterator(arr - 1); }
+
+		// Requests that the vector capacity be at least enough to contain n elements.
+		// f n is greater than the current vector capacity, the function causes the container to reallocate its storage increasing its capacity to n (or greater).
+		void reserve(size_type n)
+		{
+			if (_capacity >= n)
+				return;
+			T *new_arr = _allocator.allocate(n);
+			for (size_t i = 0; i < _size; i++)
+				_allocator.construct(new_arr + i, arr[i]);
+			for (size_t i = 0; i < _size; i++)
+				_allocator.destroy(arr + i);
+			_allocator.deallocate(arr, _capacity);
+			arr = new_arr;
+			_capacity = n;
+		}
+
+		void resize(size_type n, value_type val = value_type())
+		{
+			size_t i;
+			if (n > _capacity)
+			{
+				_capacity = n;
+				T *new_arr = _allocator.allocate(n);
+				for (size_t i = 0; i < _size; i++)
+					_allocator.construct(new_arr + i, arr[i]);
+				arr = new_arr;
+			}
+			for (i = _size; i < n; i++)
+				_allocator.construct(arr + i, val);
+			_size = n;
+		}
+
+		// Returns the number of elements in the vector.
 		size_type size() const { return _size; }
+
+		// Exchanges the content of the container by the content of x, which is another vector object of the same type. Sizes may differ.
+		void swap(vector &x)
+		{
+			if (this == &x)
+				return;
+			else
+			{
+				this->swap_data(this->arr, x.arr);
+				this->swap_data(this->_size, x._size);
+				this->swap_data(this->_capacity, x._capacity);
+			}
+		}
 	};
+	
+	template <class T, class Alloc>
+	void swap(vector<T, Alloc> &x, vector<T, Alloc> &y)
+	{
+		x.swap(y);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////  relational operators  ////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+template <class T, class Alloc>
+bool operator==(const ft::vector<T, Alloc> &lhs, const ft::vector<T, Alloc> &rhs)
+{
+	size_t size = lhs.size();
+	if (size != rhs.size())
+		return false;
+	while (size != 0)
+	{
+		size--;
+		if (lhs[size] != rhs[size])
+			return false;
+	}
+	return true;
+}
+
+template <class T, class Alloc>
+bool operator!=(const ft::vector<T, Alloc> &lhs, const ft::vector<T, Alloc> &rhs)
+{
+	size_t size = lhs.size();
+	if (size != rhs.size())
+		return true;
+	while (size != 0)
+	{
+		size--;
+		if (lhs[size] != rhs[size])
+			return true;
+	}
+	return false;
+}
+
+template <class T, class Alloc>
+bool operator<(const ft::vector<T, Alloc> &lhs, const ft::vector<T, Alloc> &rhs)
+{
+	return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::less<T>());
+}
+
+template <class T, class Alloc>
+bool operator<=(const ft::vector<T, Alloc> &lhs, const ft::vector<T, Alloc> &rhs)
+{
+	return rhs == lhs || ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::less<T>());
+}
+
+template <class T, class Alloc>
+bool operator>(const ft::vector<T, Alloc> &lhs, const ft::vector<T, Alloc> &rhs)
+{
+	return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::greater<T>());
+}
+
+template <class T, class Alloc>
+bool operator>=(const ft::vector<T, Alloc> &lhs, const ft::vector<T, Alloc> &rhs)
+{
+	return rhs == lhs || ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::greater<T>());
 }
 
 #endif

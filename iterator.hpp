@@ -3,7 +3,6 @@
 
 #include "ft_containers.hpp"
 
-
 typedef std::ptrdiff_t ptrdiff_t;
 
 namespace ft
@@ -54,9 +53,9 @@ namespace ft
 		typedef const T &reference;
 		typedef std::random_access_iterator_tag iterator_category;
 	};
-
+	//// vector_random_access_iterator ////
 	template <typename T>
-	class vector_iterator : iterator<std::random_access_iterator_tag, typename iterator_traits<T>::value_type>
+	struct vector_iterator : iterator<std::random_access_iterator_tag, typename iterator_traits<T>::value_type>
 	{
 	public:
 		typedef T iterator_type;
@@ -65,6 +64,7 @@ namespace ft
 		typedef typename ft::iterator_traits<T>::difference_type difference_type;
 		typedef typename ft::iterator_traits<T>::pointer pointer;
 		typedef typename ft::iterator_traits<T>::reference reference;
+		typedef size_t size_type;
 
 		vector_iterator(iterator_type ptr = NULL) : m_ptr(ptr) {}
 		vector_iterator(vector_iterator const &other) : m_ptr(other.m_ptr) {}
@@ -79,21 +79,21 @@ namespace ft
 		// pointer get_addr() { return m_ptr; };
 		reference operator*() const { return *m_ptr; }
 		pointer operator->() { return m_ptr; }
-		reference operator[](size_t index) { return *(m_ptr + index); }
+		reference operator[](size_type index) { return *(m_ptr + index); }
 
-		vector_iterator &operator+=(size_t index)
+		vector_iterator &operator+=(size_type index)
 		{
 			m_ptr += index;
 			return (*this);
 		}
-		vector_iterator &operator-=(size_t index)
+		vector_iterator &operator-=(size_type index)
 		{
 			m_ptr -= index;
 			return (*this);
 		}
 
-		vector_iterator operator+(size_t index) { return vector_iterator(m_ptr + index); }
-		vector_iterator operator-(size_t index) { return vector_iterator(m_ptr - index); }
+		vector_iterator operator+(size_type index) { return vector_iterator(m_ptr + index); }
+		vector_iterator operator-(size_type index) { return vector_iterator(m_ptr - index); }
 
 		bool operator==(const vector_iterator &other) { return m_ptr == other.m_ptr; };
 		bool operator!=(const vector_iterator &other) { return m_ptr != other.m_ptr; };
@@ -128,6 +128,86 @@ namespace ft
 	private:
 		iterator_type m_ptr;
 	};
+	//// vectorreverse_random_access_iterator ////
+	template <typename T>
+	struct vector_reverse_iterator : iterator<std::random_access_iterator_tag, typename iterator_traits<T>::value_type>
+	{
+		typedef T iterator_type;
+		typedef typename ft::iterator_traits<T>::iterator_category iterator_category;
+		typedef typename ft::iterator_traits<T>::value_type value_type;
+		typedef typename ft::iterator_traits<T>::difference_type difference_type;
+		typedef typename ft::iterator_traits<T>::pointer pointer;
+		typedef typename ft::iterator_traits<T>::reference reference;
+		typedef size_t size_type;
+
+		vector_reverse_iterator(pointer ptr = NULL) : m_ptr(ptr) {}
+		vector_reverse_iterator(vector_reverse_iterator const &other) : m_ptr(other.m_ptr) {}
+		~vector_reverse_iterator() {}
+		vector_reverse_iterator &operator=(vector_reverse_iterator const &other)
+		{
+			if (*this == other)
+				return (*this);
+			m_ptr = other.m_ptr;
+			return (*this);
+		}
+
+		// T *get_addr() { return m_ptr; };
+		reference operator*() const { return *m_ptr; } /*  */
+		reference operator->()
+		{
+			return *this;
+		}
+		reference operator[](size_t index) { return *(m_ptr - index); }
+
+		vector_reverse_iterator &operator+=(size_type index)
+		{
+			m_ptr -= index;
+			return (*this);
+		}
+		vector_reverse_iterator &operator-=(size_type index)
+		{
+			m_ptr += index;
+			return (*this);
+		}
+
+		vector_reverse_iterator operator+(size_type index) { return vector_reverse_iterator(m_ptr = index); }
+		vector_reverse_iterator operator-(size_type index) { return vector_reverse_iterator(m_ptr + index); }
+
+		bool operator==(const vector_reverse_iterator &other) { return m_ptr == other.m_ptr; };
+		bool operator!=(const vector_reverse_iterator &other) { return m_ptr != other.m_ptr; };
+		bool operator<(const vector_reverse_iterator &other) { return m_ptr > other.m_ptr; };
+		bool operator>(const vector_reverse_iterator &other) { return m_ptr < other.m_ptr; };
+		bool operator<=(const vector_reverse_iterator &other) { return m_ptr >= other.m_ptr; };
+		bool operator>=(const vector_reverse_iterator &other) { return m_ptr <= other.m_ptr; };
+
+		vector_reverse_iterator &operator++()
+		{
+			m_ptr--;
+			return *this;
+		}
+
+		vector_reverse_iterator operator++(int)
+		{
+			vector_reverse_iterator tmp = *this;
+			--m_ptr;
+			return tmp;
+		}
+		vector_reverse_iterator &operator--()
+		{
+			m_ptr++;
+			return *this;
+		}
+		vector_reverse_iterator operator--(int)
+		{
+			vector_reverse_iterator tmp = *this;
+			++(*this);
+			return tmp;
+		}
+
+	private:
+		iterator_type m_ptr;
+	};
+
 }
 
 #endif
