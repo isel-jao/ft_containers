@@ -62,7 +62,8 @@ namespace ft
 				arr = NULL;
 		}
 		template <class InputIterator>
-		vector(InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type())
+		vector(InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type(),
+		typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type* = NULL)
 			: _allocator(alloc)
 		{
 			InputIterator tmp = first;
@@ -75,7 +76,9 @@ namespace ft
 			_size = _capacity;
 			arr = _allocator.allocate(_size);
 			for (size_t i = 0; i < _size; i++)
-				_allocator.construct(arr + i, *(first++));
+			{
+				_allocator.construct(arr + i, *first++);
+			}
 		}
 
 		//////// copy constructors ////////
