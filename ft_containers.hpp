@@ -9,6 +9,7 @@
 #include <string.h>
 #include <deque>
 #include "pair.hpp"
+#include "map.hpp"
 #include "type_traits.hpp"
 #include "iterator.hpp"
 #include "vector.hpp"

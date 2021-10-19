@@ -20,8 +20,8 @@ namespace ft
 		typedef typename allocator_type::const_pointer const_pointer;	  // const T*
 		typedef typename ft::vector_iterator<pointer> iterator;
 		typedef typename ft::vector_iterator<const_pointer> const_iterator;
-		typedef typename ft::vector_reverse_iterator<pointer> reverse_iterator;
-		typedef typename ft::vector_reverse_iterator<const_pointer> const_reverse_iterator;
+		typedef ft::reverse_iterator<iterator> reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef size_t size_type;
 
 	private:
@@ -63,7 +63,7 @@ namespace ft
 		}
 		template <class InputIterator>
 		vector(InputIterator first, InputIterator last, const allocator_type &alloc = allocator_type(),
-		typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type* = NULL)
+			   typename enable_if<!is_integral<InputIterator>::value, InputIterator>::type * = NULL)
 			: _allocator(alloc)
 		{
 			InputIterator tmp = first;
@@ -410,17 +410,12 @@ namespace ft
 		}
 
 		// Returns a reverse iterator pointing to the last element in the vector (i.e., its reverse beginning).
-		reverse_iterator rbegin() { return reverse_iterator(arr + _size - 1); }
-		const_reverse_iterator rbegin() const
-		{
-			{
-				return const_reverse_iterator(arr + _size - 1);
-			}
-		}
+		reverse_iterator rbegin() { return (reverse_iterator(this->end())); }
+		const_reverse_iterator rbegin() const { return (reverse_iterator(this->end())); }
 
-		// Returns a reverse iterator pointing to the theoretical element preceding the first element in the vector (which is considered its reverse end).
-		reverse_iterator rend() { return reverse_iterator(arr - 1); }
-		const_reverse_iterator rend() const { return const_reverse_iterator(arr - 1); }
+		// Returns a reverse iterator pointing to the theoretical element preceding the first element in the vector(which is considered its reverse end).
+		reverse_iterator rend() { return (reverse_iterator(this->begin())); }
+		const_reverse_iterator rend() const { return (reverse_iterator(this->begin())); }
 
 		// Requests that the vector capacity be at least enough to contain n elements.
 		// f n is greater than the current vector capacity, the function causes the container to reallocate its storage increasing its capacity to n (or greater).
@@ -470,7 +465,7 @@ namespace ft
 			}
 		}
 	};
-	
+
 	template <class T, class Alloc>
 	void swap(vector<T, Alloc> &x, vector<T, Alloc> &y)
 	{
